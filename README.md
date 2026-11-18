@@ -27,6 +27,21 @@ python3 -m http.server 8000
 
 Hébergement prévu : GitHub Pages (Settings → Pages → Deploy from branch `main`, racine `/`).
 
+## Tester en ligne avant merge (branche de PR)
+
+1. Rendre le dépôt public (Settings → Danger Zone → Change visibility) : GitHub Pages gratuit exige un dépôt public (un dépôt privé fonctionne avec un plan payant).
+2. Settings → Pages → Source : « Deploy from a branch », branche `vibe/advent-calendar-site-b114cf`, dossier `/ (root)` → Save.
+3. Le site est publié sur `https://hypnoticmaid.github.io/friendly-invention/` (quelques minutes).
+   Après merge dans `main`, repointer la source Pages sur `main`.
+
+## Tester en local
+
+```sh
+python3 -m http.server 8000
+# ouvrir http://localhost:8000/ et, pour simuler une date :
+# http://localhost:8000/?date=2025-12-15
+```
+
 ## Règles de déblocage (`assets/js/calendar.js`)
 
 - Fuseau horaire : `Europe/Paris` (constante `TIMEZONE`).
