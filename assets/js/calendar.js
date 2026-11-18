@@ -39,6 +39,26 @@
     } catch (e) { return false; }
   }
 
+  function propagateTestParam() {
+    if (!testMode()) return;
+    var raw;
+    try { raw = new URLSearchParams(window.location.search).get('test'); } catch (e) { return; }
+    if (raw === null) return;
+    var links = document.querySelectorAll('a[href]');
+    for (var i = 0; i < links.length; i++) {
+      var a = links[i];
+      var href = a.getAttribute('href');
+      if (!href || href.charAt(0) === '#') continue;
+      if (/^[a-z][a-z0-9+.-]*:/i.test(href) || href.indexOf('//') === 0) continue;
+      var hash = '';
+      var hi = href.indexOf('#');
+      if (hi >= 0) { hash = href.slice(hi); href = href.slice(0, hi); }
+      if (/(?:^|[?&])test=/.test(href)) continue;
+      var sep = href.indexOf('?') >= 0 ? '&' : '?';
+      a.setAttribute('href', href + sep + 'test=' + encodeURIComponent(raw) + hash);
+    }
+  }
+
   function dayLabel(n) {
     return (n === 1 ? '1er' : String(n)) + ' décembre';
   }
@@ -66,6 +86,7 @@
   function init() {
     var t = parisToday();
     var unlocked = testMode() ? LAST_DAY : unlockedDays(t);
+    propagateTestParam();
     var pageDay = parseInt(document.body.getAttribute('data-day') || '0', 10);
     var lockDay = parseInt(document.body.getAttribute('data-lock-day') || '0', 10);
 
@@ -143,6 +164,7 @@
     parisToday: parisToday,
     unlockedDays: unlockedDays,
     testMode: testMode,
+    propagateTestParam: propagateTestParam,
     dayLabel: dayLabel
   };
 
