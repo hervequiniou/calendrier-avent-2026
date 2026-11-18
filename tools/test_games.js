@@ -187,9 +187,10 @@ for (const n of [9, 14, 18, 22]) {
   const h4 = page(4);
   const ops4 = [...h4.matchAll(/<div class="crow op">([A-Z]+)<\/div>/g)].map(m => m[1]);
   const res4 = h4.match(/<div class="crow res">([A-Z]+)<\/div>/)[1];
-  eq(ops4.join('+'), 'SEND+MORE', 'jour 4 opérandes');
-  eq(rules.cryptCheck(ops4, res4, { S: '9', E: '5', N: '6', D: '7', M: '1', O: '0', R: '8', Y: '2' }).ok, true, 'jour 4 équation');
-  eq(String(9 + 7), attr(h4, 'data-answer'), 'jour 4 S+D');
+  eq(ops4.join('+'), 'CAFE+CAFE', 'jour 4 opérandes');
+  eq(rules.cryptCheck(ops4, res4, { C: '8', A: '7', F: '2', E: '0', L: '1', T: '4' }).ok, true, 'jour 4 équation');
+  eq(String(1 + 7 + 4 + 4 + 0), attr(h4, 'data-answer'), 'jour 4 L+A+T+T+E');
+  eq(attr(h4, 'data-expr'), 'L+A+T+T+E', 'jour 4 data-expr');
   const h13 = page(13);
   const ops13 = [...h13.matchAll(/<div class="crow op">([A-Z]+)<\/div>/g)].map(m => m[1]);
   const res13 = h13.match(/<div class="crow res">([A-Z]+)<\/div>/)[1];

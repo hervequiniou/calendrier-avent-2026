@@ -22,7 +22,7 @@ KEY_RE = re.compile(r'<tr><td>(\d+)</td><td>(\d+)</td><td>([A-Z])</td></tr>')
 SOLITEM_RE = re.compile(r'<div class="solitem"><h3>Jour (\d+) &mdash; ([^<]*)</h3>(.*?)</div>', re.S)
 SC_RE = re.compile(r'<td class="sc">([^<]*)</td>')
 
-CRYPT_EXPR = {4: "S+D", 13: "S+E+N"}
+CRYPT_EXPR = {4: "L+A+T+T+E", 13: "S+E+N"}
 
 
 def detect_game(inner_html):
