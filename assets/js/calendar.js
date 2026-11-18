@@ -96,6 +96,8 @@
           if (n === unlocked && t.m === 12 && t.d <= LAST_DAY) {
             el.classList.add('today');
             if (state) state.textContent = 'Aujourd’hui !';
+          } else if (state && storageGet('avent:solved:' + n)) {
+            state.textContent = '\u2605';
           } else if (state && storageGet('avent:visited:' + n) === '1') {
             state.textContent = '✓';
           }
