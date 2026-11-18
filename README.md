@@ -48,7 +48,9 @@ python3 -m http.server 8000
 - Le jour N est accessible à partir du N décembre et reste accessible ensuite.
 - Avant le 1er décembre : tout est verrouillé. À partir du 25 décembre : tout est ouvert.
 - Les jours déjà ouverts sont cochés ✓ (stocké en `localStorage`, purement local).
-- Paramètre de test : `?date=2025-12-15` simule une date (ex. `index.html?date=2025-12-15`).
+- Paramètres de test :
+  - `?date=2025-12-15` simule une date (ex. `index.html?date=2025-12-15`) ;
+  - `?test=1` (ou `&test=1`) ouvre immédiatement les 24 jours et les solutions, quelle que soit la date.
 
 ## Régénérer les pages après modification de la source
 

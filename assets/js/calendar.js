@@ -32,6 +32,13 @@
     return 0;
   }
 
+  function testMode() {
+    try {
+      var v = new URLSearchParams(window.location.search).get('test');
+      return v !== null && v !== '' && v !== '0' && v.toLowerCase() !== 'false';
+    } catch (e) { return false; }
+  }
+
   function dayLabel(n) {
     return (n === 1 ? '1er' : String(n)) + ' décembre';
   }
@@ -58,7 +65,7 @@
 
   function init() {
     var t = parisToday();
-    var unlocked = unlockedDays(t);
+    var unlocked = testMode() ? LAST_DAY : unlockedDays(t);
     var pageDay = parseInt(document.body.getAttribute('data-day') || '0', 10);
     var lockDay = parseInt(document.body.getAttribute('data-lock-day') || '0', 10);
 
@@ -117,7 +124,9 @@
 
     var banner = document.getElementById('season-banner');
     if (banner) {
-      if (unlocked === 0) {
+      if (testMode()) {
+        banner.textContent = '🧪 Mode test (?test=1) : les 24 cases sont ouvertes, quelle que soit la date.';
+      } else if (unlocked === 0) {
         banner.textContent = '🎄 Rendez-vous le 1er décembre : les cases s’ouvriront une par une, jour après jour (heure de Paris).';
       } else if (unlocked < LAST_DAY) {
         banner.textContent = '🎁 Case du jour : ' + dayLabel(unlocked) + ' — encore ' + (LAST_DAY - unlocked) + ' case(s) à découvrir.';
@@ -131,6 +140,7 @@
     TIMEZONE: TIMEZONE,
     parisToday: parisToday,
     unlockedDays: unlockedDays,
+    testMode: testMode,
     dayLabel: dayLabel
   };
 
