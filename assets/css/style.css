@@ -15,7 +15,6 @@ a { color:var(--accent); }
 
 .site-foot { max-width:840px; margin:0 auto 30px; padding:0 16px; font-size:9pt; color:#888; text-align:center; }
 .site-foot a { color:#888; }
-.foot-sol.locked { color:#aaa; text-decoration:line-through; cursor:not-allowed; }
 
 .dayhead { display:flex; justify-content:space-between; align-items:baseline; border-bottom:1.5pt solid var(--ink); padding-bottom:6px; }
 .date { font-size:11pt; letter-spacing:.06em; text-transform:uppercase; }
