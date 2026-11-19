@@ -138,9 +138,8 @@
       (function (el) {
         var n = parseInt(el.getAttribute('data-lock-day'), 10);
         if (n > unlocked) {
-          el.classList.add('locked');
+          el.hidden = true;
           el.removeAttribute('href');
-          el.title = 'Disponible à partir du ' + dayLabel(n);
         }
       })(lockLinks[j]);
     }
