@@ -17,14 +17,14 @@ function eq(a, b, msg) { ok(a === b, msg + ' (attendu ' + JSON.stringify(b) + ',
 
 // ---------- table officielle attendue ----------
 const EXPECTED = {
-  1: ['binero', '13', 'M'], 2: ['sequence', '15', 'O'], 3: ['latin', '14', 'N'],
-  4: ['cryptarithm', '16', 'P'], 5: ['binero', '12', 'L'], 6: ['caesar', '21', 'U'],
-  7: ['skyscraper', '19', 'S'], 8: ['syllogism', '2', 'B'], 9: ['nonogram', '5', 'E'],
-  10: ['binero', '1', 'A'], 11: ['skyscraper', '21', 'U'], 12: ['skyscraper', '22', 'V'],
-  13: ['cryptarithm', '15', 'O'], 14: ['nonogram', '25', 'Y'], 15: ['pyramid', '1', 'A'],
-  16: ['zebra', '7', 'G'], 17: ['skyscraper', '5', 'E'], 18: ['nonogram', '3', 'C'],
-  19: ['binero', '5', 'E'], 20: ['magic', '19', 'S'], 21: ['skyscraper', '20', 'T'],
-  22: ['nonogram', '20', 'T'], 23: ['binero', '15', 'O'], 24: ['final', '9', 'I']
+  1: ['binero', '13', 'M'], 2: ['binero', '15', 'O'], 3: ['binero', '14', 'N'],
+  4: ['binero', '16', 'P'], 5: ['binero', '12', 'L'], 6: ['binero', '21', 'U'],
+  7: ['binero', '19', 'S'], 8: ['binero', '2', 'B'], 9: ['binero', '5', 'E'],
+  10: ['binero', '1', 'A'], 11: ['binero', '21', 'U'], 12: ['binero', '22', 'V'],
+  13: ['binero', '15', 'O'], 14: ['binero', '25', 'Y'], 15: ['binero', '1', 'A'],
+  16: ['binero', '7', 'G'], 17: ['binero', '5', 'E'], 18: ['binero', '3', 'C'],
+  19: ['binero', '5', 'E'], 20: ['binero', '19', 'S'], 21: ['binero', '20', 'T'],
+  22: ['binero', '20', 'T'], 23: ['binero', '15', 'O'], 24: ['binero', '9', 'I']
 };
 
 // ---------- conversions ----------
@@ -100,11 +100,8 @@ const indexHtml = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf-8');
 ok(indexHtml.includes('assets/js/games.js'), 'index charge games.js');
 
 // ---------- validation des solutions embarquées ----------
-function gridFrom(rows, cellCls) {
-  return rows.map(r => r.filter(c => c.cls.split(' ').includes(cellCls)));
-}
-// binéro : data-solution doit valider + extraction des étoiles = data-answer
-for (const n of [1, 5, 10, 19, 23]) {
+// binéro (les 24 jours) : data-solution doit valider + extraction des étoiles = data-answer
+for (let n = 1; n <= 24; n++) {
   const html = page(n);
   const sol = attr(html, 'data-solution');
   const rows = table(html, 'bgrid');
@@ -117,109 +114,6 @@ for (const n of [1, 5, 10, 19, 23]) {
     if (rows[r][c].cls.includes('star')) bits += sol.charAt(r * n0 + c);
   }
   eq(String(parseInt(bits, 2)), attr(html, 'data-answer'), 'jour ' + n + ' extraction binaire des étoiles');
-}
-// gratte-ciel : data-solution valide avec les clues du HTML + somme des points = data-answer
-for (const n of [7, 11, 12, 17, 21]) {
-  const html = page(n);
-  const sol = attr(html, 'data-solution');
-  const rows = table(html, 'sgrid');
-  const scIdx = [];
-  rows[1].forEach((c, i) => { if (c.cls.split(' ').includes('scell')) scIdx.push(i); });
-  const nn = scIdx.length, off = scIdx[0];
-  const clue = t => (t === '' ? null : parseInt(t, 10));
-  const clues = { top: [], bottom: [], left: [], right: [] };
-  for (let j = 0; j < nn; j++) {
-    clues.top[j] = clue(rows[0][off + j].text);
-    clues.bottom[j] = clue(rows[nn + 1][off + j].text);
-  }
-  const g = [];
-  for (let r = 0; r < nn; r++) {
-    clues.left[r] = clue(rows[r + 1][0].text);
-    clues.right[r] = clue(rows[r + 1][off + nn + 1].text);
-    g.push([]);
-    for (let c = 0; c < nn; c++) g[r].push(sol.charAt(r * nn + c));
-  }
-  ok(rules.skyscraperValidate(g, clues).ok, 'jour ' + n + ' solution gratte-ciel valide');
-  let sum = 0;
-  for (let r = 0; r < nn; r++) for (let c = 0; c < nn; c++) {
-    if (rows[r + 1][off + c].cls.includes('dot')) sum += parseInt(sol.charAt(r * nn + c), 10);
-  }
-  eq(String(sum), attr(html, 'data-answer'), 'jour ' + n + ' somme des cases à point');
-}
-// nonogramme : data-solution satisfait toutes les lignes/colonnes
-for (const n of [9, 14, 18, 22]) {
-  const html = page(n);
-  const sol = attr(html, 'data-solution');
-  const rows = table(html, 'ngrid');
-  const ncIdx = [];
-  rows[1].forEach((c, i) => { if (c.cls.split(' ').includes('ncell')) ncIdx.push(i); });
-  const nn = ncIdx.length, off = ncIdx[0];
-  const parseCl = t => t === '' ? [] : t.split(/\s+/).map(Number);
-  const g = [];
-  for (let r = 0; r < nn; r++) { g.push([]); for (let c = 0; c < nn; c++) g[r].push(sol.charAt(r * nn + c)); }
-  let allDone = true;
-  for (let r = 0; r < nn; r++) if (rules.nonogramLine(g[r], parseCl(rows[r + 1][0].text)) !== 'done') allDone = false;
-  for (let c = 0; c < nn; c++) {
-    const col = g.map(row => row[c]);
-    if (rules.nonogramLine(col, parseCl(rows[0][off + c].text)) !== 'done') allDone = false;
-  }
-  ok(allDone, 'jour ' + n + ' solution nonogramme conforme aux indices');
-}
-// latin jour 3 : solution valide + somme des points = data-answer
-{
-  const html = page(3);
-  const sol = attr(html, 'data-solution');
-  const rows = table(html, 'lgrid');
-  const nn = rows.length;
-  const g = [];
-  for (let r = 0; r < nn; r++) { g.push([]); for (let c = 0; c < nn; c++) g[r].push(sol.charAt(r * nn + c)); }
-  const symbols = [...new Set(sol.split(''))];
-  ok(rules.latinValidate(g, symbols, sol).ok, 'jour 3 solution latin valide');
-  const vals = JSON.parse(attr(html, 'data-values'));
-  let sum = 0;
-  for (let r = 0; r < nn; r++) for (let c = 0; c < nn; c++) {
-    if (rows[r][c].cls.includes('dot')) sum += parseInt(vals[sol.charAt(r * nn + c)], 10);
-  }
-  eq(String(sum), attr(html, 'data-answer'), 'jour 3 somme des cases à point');
-}
-// cryptarithmes : équations du HTML résolues par les solutions connues
-{
-  const h4 = page(4);
-  const ops4 = [...h4.matchAll(/<div class="crow op">([A-Z]+)<\/div>/g)].map(m => m[1]);
-  const res4 = h4.match(/<div class="crow res">([A-Z]+)<\/div>/)[1];
-  eq(ops4.join('+'), 'CAFE+CAFE', 'jour 4 opérandes');
-  eq(rules.cryptCheck(ops4, res4, { C: '8', A: '7', F: '2', E: '0', L: '1', T: '4' }).ok, true, 'jour 4 équation');
-  eq(String(1 + 7 + 4 + 4 + 0), attr(h4, 'data-answer'), 'jour 4 L+A+T+T+E');
-  eq(attr(h4, 'data-expr'), 'L+A+T+T+E', 'jour 4 data-expr');
-  const h13 = page(13);
-  const ops13 = [...h13.matchAll(/<div class="crow op">([A-Z]+)<\/div>/g)].map(m => m[1]);
-  const res13 = h13.match(/<div class="crow res">([A-Z]+)<\/div>/)[1];
-  eq(ops13.join('+'), 'CROSS+ROADS', 'jour 13 opérandes');
-  eq(rules.cryptCheck(ops13, res13, { C: '9', R: '6', O: '2', S: '3', A: '5', D: '1', N: '8', G: '7', E: '4' }).ok, true, 'jour 13 équation');
-  eq(String(3 + 4 + 8), attr(h13, 'data-answer'), 'jour 13 S+E+N');
-  eq(attr(h13, 'data-expr'), 'S+E+N', 'jour 13 data-expr');
-}
-// pyramide jour 15 : la case marquée vaut data-answer dans la solution cohérente
-{
-  const html = page(15);
-  const mark = attr(html, 'data-answer');
-  eq(mark, '1', 'jour 15 case marquée');
-  ok(rules.pyramidValidate([['18'], ['9', '9'], ['6', '3', '6'], ['4', '2', mark, '5']]).ok, 'jour 15 pyramide cohérente');
-}
-// carré magique jour 20 : remplir la case vide avec data-answer valide
-{
-  const html = page(20);
-  const rows = table(html, 'mgrid');
-  const g = rows.map(r => r.map(c => c.text === '' ? attr(html, 'data-answer') : c.text));
-  ok(rules.magicValidate(g).ok, 'jour 20 carré magique avec la bonne case');
-}
-// césar jour 6 : décodage avec la clé data-answer donne des mots
-{
-  const html = page(6);
-  const seq = html.match(/<div class="bigseq">([\s\S]*?)<\/div>/)[1].replace(/&nbsp;/g, ' ').trim();
-  const words = seq.split(/\s+/);
-  const k = parseInt(attr(html, 'data-answer'), 10);
-  eq(words.map(w => rules.caesarDecode(w, k)).join(' '), 'NOEL ABLALI', 'jour 6 décodage avec la bonne clé');
 }
 
 console.log('---');
